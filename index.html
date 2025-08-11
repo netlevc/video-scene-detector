@@ -1,101 +1,118 @@
 <!DOCTYPE html>
+<!-- This is the main HTML file for the Video Scene Detector web interface -->
+<!-- It creates the user interface that allows users to upload videos, configure settings, and view results -->
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Scene Detector</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Meta tags provide information about the document -->
+    <meta charset="UTF-8">  <!-- Character encoding for the page -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  <!-- Makes the page responsive for mobile devices -->
+    <title>Video Scene Detector</title>  <!-- Title that appears in the browser tab -->
+    
+    <!-- External CSS libraries for styling -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">  <!-- Tailwind CSS for modern styling -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">  <!-- Font Awesome for icons -->
+    
+    <!-- Custom CSS styles for specific UI components -->
     <style>
+        /* Drop zone styling - the area where users drag and drop video files */
         .drop-zone {
-            border: 2px dashed #cbd5e1;
-            transition: all 0.3s ease;
+            border: 2px dashed #cbd5e1;  /* Dashed border for the drop area */
+            transition: all 0.3s ease;  /* Smooth transition for visual effects */
         }
         .drop-zone.dragover {
-            border-color: #3b82f6;
-            background-color: #eff6ff;
+            border-color: #3b82f6;  /* Blue border when dragging over */
+            background-color: #eff6ff;  /* Light blue background when dragging over */
         }
         .drop-zone.drag-reject {
-            border-color: #ef4444;
-            background-color: #fef2f2;
+            border-color: #ef4444;  /* Red border for invalid files */
+            background-color: #fef2f2;  /* Light red background for invalid files */
         }
+        
+        /* Custom slider styling for the sensitivity and duration controls */
         .slider {
-            -webkit-appearance: none;
-            height: 8px;
-            border-radius: 4px;
-            background: #e5e7eb;
-            outline: none;
+            -webkit-appearance: none;  /* Remove default browser styling */
+            height: 8px;  /* Height of the slider track */
+            border-radius: 4px;  /* Rounded corners */
+            background: #e5e7eb;  /* Gray background */
+            outline: none;  /* Remove focus outline */
         }
         .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
+            -webkit-appearance: none;  /* Remove default styling */
             appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #3b82f6;
-            cursor: pointer;
+            width: 20px;  /* Width of the slider handle */
+            height: 20px;  /* Height of the slider handle */
+            border-radius: 50%;  /* Make it circular */
+            background: #3b82f6;  /* Blue color */
+            cursor: pointer;  /* Show pointer cursor */
         }
         .slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #3b82f6;
-            cursor: pointer;
-            border: none;
+            width: 20px;  /* Width for Firefox */
+            height: 20px;  /* Height for Firefox */
+            border-radius: 50%;  /* Circular for Firefox */
+            background: #3b82f6;  /* Blue color for Firefox */
+            cursor: pointer;  /* Pointer cursor for Firefox */
+            border: none;  /* Remove border for Firefox */
         }
+        
+        /* Toggle switch styling for the "Ignore Cursor" option */
         .toggle-switch {
-            position: relative;
+            position: relative;  /* For positioning the toggle */
             display: inline-block;
-            width: 44px;
-            height: 24px;
+            width: 44px;  /* Width of the toggle */
+            height: 24px;  /* Height of the toggle */
         }
         .toggle-switch input {
-            opacity: 0;
+            opacity: 0;  /* Hide the actual checkbox */
             width: 0;
             height: 0;
         }
         .toggle-slider {
-            position: absolute;
+            position: absolute;  /* Position relative to the toggle container */
             cursor: pointer;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 24px;
+            background-color: #ccc;  /* Gray background when off */
+            transition: .4s;  /* Smooth transition */
+            border-radius: 24px;  /* Rounded corners */
         }
         .toggle-slider:before {
             position: absolute;
             content: "";
-            height: 18px;
-            width: 18px;
+            height: 18px;  /* Height of the toggle handle */
+            width: 18px;  /* Width of the toggle handle */
             left: 3px;
             bottom: 3px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
+            background-color: white;  /* White handle */
+            transition: .4s;  /* Smooth transition */
+            border-radius: 50%;  /* Circular handle */
         }
         input:checked + .toggle-slider {
-            background-color: #3b82f6;
+            background-color: #3b82f6;  /* Blue background when on */
         }
         input:checked + .toggle-slider:before {
-            transform: translateX(20px);
+            transform: translateX(20px);  /* Move handle to the right when on */
         }
+        
+        /* Loading overlay styling - shown during processing */
         .loading {
-            display: none;
+            display: none;  /* Hidden by default */
         }
         .loading.show {
-            display: flex;
+            display: flex;  /* Show as flexbox when active */
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-        <!-- Header -->
+
+<body class="bg-gray-50 min-h-screen">  <!-- Light gray background, minimum full screen height -->
+    <div class="container mx-auto px-4 py-8">  <!-- Main container with auto margins and padding -->
+        
+        <!-- Header section with title and description -->
         <header class="text-center mb-8">
             <h1 class="text-4xl font-bold text-gray-900 mb-2">
-                <i class="fas fa-video text-blue-600 mr-3"></i>
+                <i class="fas fa-video text-blue-600 mr-3"></i>  <!-- Video icon -->
                 Video Scene Detector
             </h1>
             <p class="text-lg text-gray-600">
@@ -103,41 +120,49 @@
             </p>
         </header>
 
-        <div class="max-w-6xl mx-auto space-y-8">
+        <div class="max-w-6xl mx-auto space-y-8">  <!-- Main content area with spacing between sections -->
+            
             <!-- Video Upload Section -->
-            <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="bg-white rounded-lg shadow-md p-6">  <!-- White card with shadow -->
                 <h2 class="text-2xl font-semibold text-gray-900 mb-4">
                     <i class="fas fa-upload mr-2"></i>Upload Video
                 </h2>
+                
+                <!-- Drop zone for file uploads -->
                 <div id="dropZone" class="drop-zone rounded-lg p-8 text-center cursor-pointer">
                     <div class="flex flex-col items-center space-y-4">
-                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400"></i>
+                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400"></i>  <!-- Upload icon -->
                         <div class="space-y-2">
                             <p class="text-lg font-medium text-gray-900">Drag & drop a video file here</p>
                             <p class="text-sm text-gray-500">or click to browse files</p>
                             <p class="text-xs text-gray-400">Supported formats: MP4, AVI, MOV, WMV</p>
                         </div>
                     </div>
-                    <input type="file" id="fileInput" accept="video/*" class="hidden">
+                    <input type="file" id="fileInput" accept="video/*" class="hidden">  <!-- Hidden file input -->
                 </div>
+                
+                <!-- Upload status indicator -->
                 <div id="uploadStatus" class="mt-4 hidden">
                     <div class="flex items-center space-x-2">
-                        <i class="fas fa-spinner fa-spin text-blue-600"></i>
+                        <i class="fas fa-spinner fa-spin text-blue-600"></i>  <!-- Spinning loading icon -->
                         <span class="text-blue-600">Uploading...</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Analysis Settings -->
-            <div id="analysisSection" class="bg-white rounded-lg shadow-md p-6 hidden">
+            <!-- Analysis Settings Section -->
+            <div id="analysisSection" class="bg-white rounded-lg shadow-md p-6 hidden">  <!-- Hidden until video is uploaded -->
                 <h2 class="text-2xl font-semibold text-gray-900 mb-4">
                     <i class="fas fa-cogs mr-2"></i>Analysis Settings
                 </h2>
+                
+                <!-- Settings grid with three columns on medium screens and larger -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <!-- Sensitivity -->
+                    
+                    <!-- Sensitivity Control -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
-                            Sensitivity: <span id="sensitivityValue">0.8</span>
+                            Sensitivity: <span id="sensitivityValue">0.8</span>  <!-- Shows current value -->
                         </label>
                         <input type="range" id="sensitivitySlider" min="0.1" max="1.0" step="0.1" value="0.8" class="slider w-full">
                         <div class="flex justify-between text-xs text-gray-500 mt-1">
@@ -146,19 +171,19 @@
                         </div>
                     </div>
 
-                    <!-- Ignore Cursor -->
+                    <!-- Ignore Cursor Toggle -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             Ignore Cursor Movement
                         </label>
                         <label class="toggle-switch">
-                            <input type="checkbox" id="ignoreCursor" checked>
+                            <input type="checkbox" id="ignoreCursor" checked>  <!-- Checked by default -->
                             <span class="toggle-slider"></span>
                         </label>
                         <span class="ml-3 text-sm text-gray-700" id="cursorStatus">Enabled</span>
                     </div>
 
-                    <!-- Min Segment Duration -->
+                    <!-- Minimum Segment Duration Control -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             Min Segment Duration: <span id="durationValue">1.0</span>s
@@ -171,6 +196,7 @@
                     </div>
                 </div>
 
+                <!-- Analysis button section -->
                 <div class="flex items-center justify-between pt-4 border-t border-gray-200">
                     <div class="flex items-center space-x-2 text-gray-600">
                         <i class="fas fa-cogs"></i>
@@ -183,18 +209,19 @@
                 </div>
             </div>
 
-            <!-- Video Timeline -->
-            <div id="timelineSection" class="bg-white rounded-lg shadow-md p-6 hidden">
+            <!-- Video Timeline Section -->
+            <div id="timelineSection" class="bg-white rounded-lg shadow-md p-6 hidden">  <!-- Hidden until analysis is complete -->
                 <h2 class="text-2xl font-semibold text-gray-900 mb-4">
                     <i class="fas fa-cut mr-2"></i>Detected Cut Points
                 </h2>
                 
-                <!-- Video Info -->
+                <!-- Video Information Display -->
                 <div id="videoInfo" class="bg-gray-50 rounded-lg p-4 mb-6">
                     <div class="flex items-center space-x-2 mb-3">
                         <i class="fas fa-video text-gray-600"></i>
                         <h3 class="text-lg font-medium text-gray-900" id="videoName">Video Name</h3>
                     </div>
+                    <!-- Video metadata grid -->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                         <div>
                             <span class="text-gray-500">Duration:</span>
@@ -215,19 +242,20 @@
                     </div>
                 </div>
 
-                <!-- Cut Points -->
+                <!-- Cut Points List -->
                 <div>
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-medium text-gray-900">
-                            Cut Points (<span id="cutPointsCount">0</span>)
+                            Cut Points (<span id="cutPointsCount">0</span>)  <!-- Shows number of cut points -->
                         </h3>
                         <div class="flex items-center space-x-2 text-sm text-gray-500">
                             <i class="fas fa-clock"></i>
                             <span>Total Duration: <span id="totalDuration">0:00</span></span>
                         </div>
                     </div>
+                    <!-- Container for cut points list -->
                     <div id="cutPointsList" class="space-y-2 max-h-64 overflow-y-auto">
-                        <!-- Cut points will be inserted here -->
+                        <!-- Cut points will be inserted here by JavaScript -->
                     </div>
                 </div>
 
@@ -243,11 +271,15 @@
                             <span>Process & Download</span>
                         </button>
                     </div>
+                    
+                    <!-- Processing status indicator -->
                     <div id="processingStatus" class="mt-4 hidden">
                         <div class="p-3 bg-blue-50 rounded-lg">
                             <p class="text-sm text-blue-800" id="processingMessage">Processing...</p>
                         </div>
                     </div>
+                    
+                    <!-- Download information display -->
                     <div id="downloadInfo" class="mt-4 hidden">
                         <div class="p-4 bg-green-50 rounded-lg">
                             <div class="flex items-center space-x-2 mb-2">
@@ -258,7 +290,7 @@
                             <div class="text-sm text-green-700">
                                 <p class="font-medium mb-1">Files created:</p>
                                 <ul id="filesList" class="space-y-1">
-                                    <!-- Files will be listed here -->
+                                    <!-- Files will be listed here by JavaScript -->
                                 </ul>
                             </div>
                         </div>
@@ -268,17 +300,18 @@
         </div>
     </div>
 
-    <!-- Loading Overlay -->
+    <!-- Loading Overlay - covers the entire screen during processing -->
     <div id="loadingOverlay" class="loading fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
             <div class="flex flex-col items-center space-y-4">
-                <i class="fas fa-spinner fa-spin text-4xl text-blue-500"></i>
+                <i class="fas fa-spinner fa-spin text-4xl text-blue-500"></i>  <!-- Large spinning icon -->
                 <h3 class="text-xl font-semibold text-gray-900" id="loadingTitle">Processing</h3>
                 <p class="text-gray-600 text-center" id="loadingMessage">Please wait...</p>
             </div>
         </div>
     </div>
 
+    <!-- Link to the JavaScript file that handles all the interactive functionality -->
     <script src="app.js"></script>
 </body>
 </html> 

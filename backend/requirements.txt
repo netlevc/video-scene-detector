@@ -1,14 +1,45 @@
+# This file lists all the Python packages (libraries) needed to run the Video Scene Detector backend
+# Each line specifies a package name and version number
+# These packages provide the functionality needed for video processing, web serving, and data handling
+
+# Web framework for creating the API server
 fastapi==0.104.1
+
+# Web server that runs the FastAPI application
 uvicorn[standard]==0.24.0
+
+# Handles file uploads in web requests
 python-multipart==0.0.6
+
+# Computer vision library for video and image processing
 opencv-python==4.9.0.80
+
+# Numerical computing library for array operations and mathematical functions
 numpy==1.26.4
+
+# Image processing library (used by OpenCV and other components)
 Pillow==10.2.0
+
+# Python wrapper for FFmpeg (video processing tool)
 python-ffmpeg==2.0.4
+
+# Asynchronous file operations for handling multiple file uploads
 aiofiles==23.2.1
+
+# JSON Web Token library for authentication (if needed in future)
 python-jose[cryptography]==3.3.0
+
+# Password hashing library for security (if needed in future)
 passlib[bcrypt]==1.7.4
+
+# Environment variable management for configuration
 python-dotenv==1.0.0
+
+# Data validation and settings management
 pydantic==2.5.0
+
+# Settings management with environment variable support
 pydantic-settings==2.1.0
+
+# Scene detection library for finding cut points in videos
 scenedetect==0.6.2 
